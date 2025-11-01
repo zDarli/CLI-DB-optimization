@@ -11,6 +11,7 @@ DDL = """
 CREATE TABLE IF NOT EXISTS employees (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     full_name   TEXT    NOT NULL,
+    last_name   TEXT    NOT NULL,
     birth_date  TEXT    NOT NULL,    -- хранится в ISO-формате YYYY-MM-DD
     gender      TEXT    NOT NULL CHECK(gender IN ('Male', 'Female', 'Other'))
 );
@@ -43,15 +44,21 @@ class Employee:
     #         years -= 1
     #     return years
 
+    @staticmethod
+    def last_name_from_full(full_name: str) -> str:
+        parts = full_name.strip().split()
+        return parts[-1] if parts else ""
+
     # подготовить данные к записи в БД
     def to_row(self) -> tuple:
         """Возвращает кортеж значений в нужном порядке для INSERT-запроса."""
-        return (self.full_name, self.birth_date.isoformat(), self.gender)
+        last_name = self.last_name_from_full(self.full_name)
+        return (self.full_name, last_name, self.birth_date.isoformat(), self.gender)
 
     # SQL для вставки одной записи
     @staticmethod
     def insert_sql() -> str:
-        return "INSERT INTO employees(full_name, birth_date, gender) VALUES (?, ?, ?)"
+        return "INSERT INTO employees(full_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?)"
 
     # сохранить объект в БД
     def save(self, conn) -> Employee:

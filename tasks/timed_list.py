@@ -6,6 +6,13 @@ SQL_old = """SELECT full_name, birth_date, gender
 FROM employees
 WHERE gender = 'Male' AND full_name like '% F%'"""
 
+SQL = """
+SELECT full_name, birth_date, gender
+FROM employees
+WHERE gender = 'Male'
+  AND last_name >= 'F' COLLATE NOCASE
+  AND last_name <  'G' COLLATE NOCASE
+"""
 
 def run(args):
     N = 10 # кол-во повторов
@@ -15,7 +22,7 @@ def run(args):
     with conn_ctx() as c:
         for i in range(N):
             start = time.perf_counter()
-            rows = c.execute(SQL_old).fetchall()
+            rows = c.execute(SQL).fetchall()
             duration = time.perf_counter()-start
             times.append(duration)
 

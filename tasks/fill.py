@@ -8,6 +8,10 @@ from models import Employee
 fake = Faker("ru_RU")
 genders = ["Male", "Female"]
 
+SQL_INDEX = """
+            CREATE INDEX idx_emp_gender_last
+            ON employees (gender, last_name COLLATE NOCASE);
+            """
 
 def gen_employees(n:int, starts_with = None, pref_gen = None):
     employees = 0
@@ -37,5 +41,7 @@ def run(args):
             metrics = Employee.bulk_insert(c,gen_employees(1_000_000),chunk_size=50_000)
             print(metrics)
             Employee.bulk_insert(c,gen_employees(100, "F", "Male"))
+            c.execute(SQL_INDEX)#добавление индекса
+            c.commit()
         except:
             print("Создайте сначала таблицу")
